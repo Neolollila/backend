@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <copy todir="G:\kek\jwt-springboot-reactjs-token-authentication-example\target/classes/public">
+    <fileset dir="G:\kek\jwt-springboot-reactjs-token-authentication-example/reactjs-jwt-token-authentication/build"/>
+  </copy>
+</target>
+</project>
