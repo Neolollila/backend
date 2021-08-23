@@ -16,10 +16,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<frontend-src-dir>${project.basedir}/src/main</frontend-src-dir>
-		<node.version>v12.3.1</node.version>
-		<yarn.version>v1.16.0</yarn.version>
-		<frontend-maven-plugin.version>1.7.6</frontend-maven-plugin.version>
+
 	</properties>
 
 	<dependencies>
@@ -90,63 +87,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>com.github.eirslett</groupId>
-				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.6</version>
-				<configuration>
-					<workingDirectory>reactjs-jwt-token-authentication</workingDirectory>
-					<installDirectory>target</installDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>install node and yarn</id>
-						<goals>
-							<goal>install-node-and-yarn</goal>
-						</goals>
-						<configuration>
-							<nodeVersion>v12.3.1</nodeVersion>
-							<yarnVersion>v1.16.0</yarnVersion>
-						</configuration>
-					</execution>
-					<execution>
-						<id>yarn install</id>
-						<goals>
-							<goal>yarn</goal>
-						</goals>
-						<configuration>
-							<arguments>install</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>yarn run build</id>
-						<goals>
-							<goal>yarn</goal>
-						</goals>
-						<configuration>
-							<arguments>run build</arguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<configuration>
-							<target>
-								<copy todir="${project.build.directory}/classes/public">
-									<fileset dir="${project.basedir}/reactjs-jwt-token-authentication/build"/>
-								</copy>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+
 
 		</plugins>
 	</build>
