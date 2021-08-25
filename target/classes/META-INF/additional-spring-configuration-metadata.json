@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "loizenai.app.jwtExpiration",
+      "type": "java.lang.String",
+      "description": "Description for loizenai.app.jwtExpiration."
+  }
+] }

@@ -98,5 +98,25 @@ public class CollectionController {
         return ResponseEntity.ok(collectionRepository.getOne(id).getItems());
     }
 
+    @GetMapping("/editItem/{id}")
+    public ResponseEntity <Item> getItemById(@PathVariable(value = "id") Long id) {
+
+        return ResponseEntity.ok(this.itemRepository.findById(id).get());
+    }
+
+    @PostMapping("/editItem/{id}")
+    public ResponseEntity<Void> editItem(@PathVariable(value = "id") Long id,@RequestBody ObjectNode json){
+        Item updateItem = this.itemRepository.findById(id).get();
+        updateItem.setName(json.get("name").asText());
+        this.itemRepository.save(updateItem);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deleteItem/{id}")
+
+    public ResponseEntity<Void> removeItem(@PathVariable(value = "id") Long id){
+        this.itemRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 
 }
