@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Setter;
 import lombok.Getter;
 
@@ -52,6 +54,11 @@ public class User{
 
     @Getter
     @Setter
+    @Column(name = "active", columnDefinition = "boolean default true")
+    private Boolean active = true;
+
+    @Getter
+    @Setter
     @NaturalId
     @NotBlank
     @Size(max = 50)
@@ -66,6 +73,16 @@ public class User{
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Collection> collections=new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Comment> comments=new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany (mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Like> likes=new ArrayList<>();
 
     @Getter
     @Setter

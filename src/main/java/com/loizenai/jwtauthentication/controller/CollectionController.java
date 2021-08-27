@@ -1,13 +1,8 @@
 package com.loizenai.jwtauthentication.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.loizenai.jwtauthentication.model.Collection;
-import com.loizenai.jwtauthentication.model.Item;
-import com.loizenai.jwtauthentication.model.Theme;
-import com.loizenai.jwtauthentication.model.User;
-import com.loizenai.jwtauthentication.repository.CollectionRepository;
-import com.loizenai.jwtauthentication.repository.ItemRepository;
-import com.loizenai.jwtauthentication.repository.ThemeRepository;
+import com.loizenai.jwtauthentication.model.*;
+import com.loizenai.jwtauthentication.repository.*;
 import com.loizenai.jwtauthentication.security.services.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +29,14 @@ public class CollectionController {
     @Autowired
     public ItemRepository itemRepository;
 
+    @Autowired
+    public CommentRepository commentRepository;
+
+    @Autowired
+    public LikeRepository likeRepository;
+
+
+
     @GetMapping("/theme")
     public ResponseEntity <List<Theme>> getThemeList() {
         return ResponseEntity.ok(
@@ -55,8 +58,9 @@ public class CollectionController {
     @GetMapping("/user")
     public ResponseEntity <List<Collection>> getCurrentUserCollections() {
         //System.out.println();
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(
-                this.collectionRepository.findAll()
+                this.collectionRepository.findCollectionByIdUser(((UserPrinciple) user).getUser())
         );
     }
 
@@ -118,5 +122,33 @@ public class CollectionController {
         this.itemRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/addComment")
+    public ResponseEntity<Comment> addComment(@RequestBody ObjectNode json){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Comment newComment = new Comment();
+        newComment.setText(json.get("text").asText());
+        newComment.setItem(itemRepository.getOne(json.get("id_item").asLong()));
+        newComment.setUser(((UserPrinciple) user).getUser());
+        return new ResponseEntity<Comment>(commentRepository.save(newComment), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/addLike/{id}")
+    public ResponseEntity<String> addLike(@PathVariable(value = "id") Long id){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Like tr = likeRepository.findByIdUserAndItem(((UserPrinciple) user).getUser(),itemRepository.getOne(id));
+        if (tr == null ) {
+            Like newLike = new Like();
+            newLike.setItem(itemRepository.getOne(id));
+            newLike.setUser(((UserPrinciple) user).getUser());
+            likeRepository.save(newLike);
+        } else {
+            likeRepository.deleteById(tr.getId());
+        }
+        String  likeAmount = likeRepository.countLikes(itemRepository.getOne(id)) ;
+        return new ResponseEntity<String>(likeAmount, HttpStatus.CREATED);
+    }
+
+
 
 }
