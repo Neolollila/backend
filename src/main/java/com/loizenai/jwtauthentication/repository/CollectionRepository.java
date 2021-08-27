@@ -16,4 +16,7 @@ import java.util.List;
 public interface CollectionRepository extends JpaRepository<Collection, Long> {
     @Query("SELECT u FROM Collection u WHERE u.user = ?1")
     public List<Collection> findCollectionByIdUser(User user);
+
+    @Query("SELECT u FROM Collection u WHERE u.user = ?1")
+    public List<Collection> findBigestCollection(User user);
 }

@@ -22,7 +22,7 @@ import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-public class TestRestAPIs {
+public class UserController {
 
 	@Autowired
 	public UserRepository userRepository;

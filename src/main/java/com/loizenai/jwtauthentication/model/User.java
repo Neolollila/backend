@@ -71,7 +71,8 @@ public class User{
     @Size(min=6, max = 100)
     private String password;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonManagedReference
     private List<Collection> collections=new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

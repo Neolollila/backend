@@ -1,5 +1,6 @@
 package com.loizenai.jwtauthentication.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,7 @@ public class Theme {
     @NotBlank
     private String name;
 
-    @OneToMany (mappedBy = "theme", fetch = FetchType.LAZY)
+    @OneToMany ( fetch = FetchType.LAZY) //mappedBy = "theme",
+//    @JsonManagedReference
     private List<Collection> collections=new ArrayList<>();
 }

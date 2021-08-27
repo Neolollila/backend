@@ -5,6 +5,9 @@ import com.loizenai.jwtauthentication.model.*;
 import com.loizenai.jwtauthentication.repository.*;
 import com.loizenai.jwtauthentication.security.services.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +38,14 @@ public class CollectionController {
     @Autowired
     public LikeRepository likeRepository;
 
+    @Autowired
+    public UserRepository userRepository;
+
 
 
     @GetMapping("/theme")
     public ResponseEntity <List<Theme>> getThemeList() {
-        return ResponseEntity.ok(
-            this.themeRepository.findAll()
-        );
+        return ResponseEntity.ok(this.themeRepository.findAll());
     }
 
     @PostMapping("/new")
@@ -55,12 +59,30 @@ public class CollectionController {
         return new ResponseEntity<>(collectionRepository.save(newCollection), HttpStatus.CREATED);
     }
 
+    @PostMapping("/new/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Collection> createUserCollection(@PathVariable(value = "id") Long id, @RequestBody ObjectNode json){
+        Collection newCollection = new Collection();
+        newCollection.setName(json.get("name").asText());
+        newCollection.setTheme(themeRepository.getOne(json.get("theme").asLong()));
+        newCollection.setDescription(json.get("description").asText());
+        newCollection.setUser(userRepository.getOne(id));
+        return new ResponseEntity<>(collectionRepository.save(newCollection), HttpStatus.CREATED);
+    }
+
     @GetMapping("/user")
     public ResponseEntity <List<Collection>> getCurrentUserCollections() {
         //System.out.println();
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(
                 this.collectionRepository.findCollectionByIdUser(((UserPrinciple) user).getUser())
+        );
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity <List<Collection>> getUserCollections(@PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(
+                this.collectionRepository.findCollectionByIdUser(userRepository.getOne(id))
         );
     }
 
@@ -149,6 +171,16 @@ public class CollectionController {
         return new ResponseEntity<String>(likeAmount, HttpStatus.CREATED);
     }
 
+    @GetMapping("/home/lastAddedItems")
+    public ResponseEntity <List<Item>> getLastAddedItems() {
+        Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
+        return ResponseEntity.ok(this.itemRepository.lastAddedItems(sortedByIdDesc));
+    }
 
+//    @GetMapping("/home/largestCollections")
+//    public ResponseEntity <List<Collection>> getLargestCollections() {
+//        Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
+//        return ResponseEntity.ok(this.collectionRepository);
+//    }
 
 }
