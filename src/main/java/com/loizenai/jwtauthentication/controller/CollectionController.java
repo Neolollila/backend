@@ -55,6 +55,7 @@ public class CollectionController {
         newCollection.setName(json.get("name").asText());
         newCollection.setTheme(themeRepository.getOne(json.get("theme").asLong()));
         newCollection.setDescription(json.get("description").asText());
+        newCollection.setImage(json.get("image").asText());
         newCollection.setUser(((UserPrinciple) user).getUser());
         return new ResponseEntity<>(collectionRepository.save(newCollection), HttpStatus.CREATED);
     }
@@ -66,6 +67,7 @@ public class CollectionController {
         newCollection.setName(json.get("name").asText());
         newCollection.setTheme(themeRepository.getOne(json.get("theme").asLong()));
         newCollection.setDescription(json.get("description").asText());
+        newCollection.setImage(json.get("image").asText());
         newCollection.setUser(userRepository.getOne(id));
         return new ResponseEntity<>(collectionRepository.save(newCollection), HttpStatus.CREATED);
     }
@@ -103,6 +105,7 @@ public class CollectionController {
     public ResponseEntity<Void> editCollection(@PathVariable(value = "id") Long id,@RequestBody ObjectNode json){
         Collection updateCollection = this.collectionRepository.findById(id).get();
         updateCollection.setName(json.get("name").asText());
+        updateCollection.setImage(json.get("image").asText());
         updateCollection.setTheme(themeRepository.getOne(json.get("theme").asLong()));
         updateCollection.setDescription(json.get("description").asText());
         this.collectionRepository.save(updateCollection);
@@ -171,16 +174,23 @@ public class CollectionController {
         return new ResponseEntity<String>(likeAmount, HttpStatus.CREATED);
     }
 
+    @GetMapping("/getLike/{id}")
+    public ResponseEntity<String> getLike(@PathVariable(value = "id") Long id){
+        String  likeAmount = likeRepository.countLikes(itemRepository.getOne(id)) ;
+        return new ResponseEntity<String>(likeAmount, HttpStatus.CREATED);
+    }
+
+
     @GetMapping("/home/lastAddedItems")
     public ResponseEntity <List<Item>> getLastAddedItems() {
         Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
         return ResponseEntity.ok(this.itemRepository.lastAddedItems(sortedByIdDesc));
     }
 
-//    @GetMapping("/home/largestCollections")
-//    public ResponseEntity <List<Collection>> getLargestCollections() {
-//        Pageable sortedByIdDesc = PageRequest.of(0, 10, Sort.by("id").descending());
-//        return ResponseEntity.ok(this.collectionRepository);
-//    }
+    @GetMapping("/home/largestCollections")
+    public ResponseEntity <List<Collection>> getLargestCollections() {//List<Collection>
+
+        return ResponseEntity.ok(this.collectionRepository.findByIds(this.collectionRepository.findBigestCollection()));
+    }
 
 }
