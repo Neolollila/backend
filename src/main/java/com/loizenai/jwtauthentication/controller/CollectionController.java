@@ -1,5 +1,6 @@
 package com.loizenai.jwtauthentication.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.loizenai.jwtauthentication.model.*;
 import com.loizenai.jwtauthentication.repository.*;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.rmi.ServerException;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -41,11 +43,22 @@ public class CollectionController {
     @Autowired
     public UserRepository userRepository;
 
+    @Autowired
+    public TypeRepository typeRepository;
+
+    @Autowired
+    public FielditemRepository fielditemRepository;
+
 
 
     @GetMapping("/theme")
     public ResponseEntity <List<Theme>> getThemeList() {
         return ResponseEntity.ok(this.themeRepository.findAll());
+    }
+
+    @GetMapping("/type")
+    public ResponseEntity <List<Type>> getTypeList() {
+        return ResponseEntity.ok(this.typeRepository.findAll());
     }
 
     @PostMapping("/new")
@@ -117,7 +130,17 @@ public class CollectionController {
         Item newItem = new Item();
         newItem.setName(json.get("name").asText());
         newItem.setCollection(collectionRepository.getOne(id));
-        return new ResponseEntity<>(itemRepository.save(newItem), HttpStatus.CREATED);
+        newItem = itemRepository.save(newItem);
+        for (JsonNode node : json.get("fieldItems")) {
+            Fielditem fielditem = new Fielditem();
+            fielditem.setName(node.get("name").asText());
+            fielditem.setValue(node.get("value").asText());
+            fielditem.setType(typeRepository.getOne(node.get("idType").asLong()));
+            fielditem.setItem(newItem);
+            fielditemRepository.save(fielditem);
+        }
+
+        return new ResponseEntity<>(newItem, HttpStatus.CREATED);
     }
 
 
@@ -127,7 +150,7 @@ public class CollectionController {
         return ResponseEntity.ok(collectionRepository.getOne(id).getItems());
     }
 
-    @GetMapping("/editItem/{id}")
+    @GetMapping("/getItem/{id}")
     public ResponseEntity <Item> getItemById(@PathVariable(value = "id") Long id) {
 
         return ResponseEntity.ok(this.itemRepository.findById(id).get());
@@ -138,6 +161,13 @@ public class CollectionController {
         Item updateItem = this.itemRepository.findById(id).get();
         updateItem.setName(json.get("name").asText());
         this.itemRepository.save(updateItem);
+        for (JsonNode node : json.get("fieldItems")) {
+            Fielditem fielditem = this.fielditemRepository.findById(node.get("id").asLong()).get();
+            fielditem.setName(node.get("name").asText());
+            fielditem.setValue(node.get("value").asText());
+            //fielditem.setType(typeRepository.getOne(node.get("idType").asLong()));
+            fielditemRepository.save(fielditem);
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -145,6 +175,13 @@ public class CollectionController {
 
     public ResponseEntity<Void> removeItem(@PathVariable(value = "id") Long id){
         this.itemRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deleteFieldItem/{id}")
+
+    public ResponseEntity<Void> removeFieldItem(@PathVariable(value = "id") Long id){
+        this.fielditemRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
 

@@ -58,7 +58,7 @@ public class Collection {
 
     @Getter
     @Setter
-    @OneToMany (mappedBy = "collection", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany (mappedBy = "collection", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Item> items=new ArrayList<>();
 

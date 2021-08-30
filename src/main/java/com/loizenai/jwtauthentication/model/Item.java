@@ -44,6 +44,12 @@ public class Item {
 
     @Getter
     @Setter
+    @OneToMany (mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    private List<Fielditem> fielditems=new ArrayList<>();
+
+    @Getter
+    @Setter
     @OneToMany (mappedBy = "item", fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
     @JsonManagedReference
     private List<Like> likes =new ArrayList<>();
